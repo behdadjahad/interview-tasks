@@ -31,7 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+        "common.apps.CommonConfig",
+        "inventory.apps.InventoryConfig",
+]
 
 THIRD_PARTY_APPS = [
     "rest_framework",
