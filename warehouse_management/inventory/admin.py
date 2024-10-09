@@ -1,3 +1,5 @@
 from django.contrib import admin
+from inventory.models import Ware, Factor
 
-# Register your models here.
+admin.site.register(Ware)
+admin.site.register(Factor)

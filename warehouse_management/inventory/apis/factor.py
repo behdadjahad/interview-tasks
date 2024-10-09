@@ -14,7 +14,7 @@ from inventory.services.factor import (
     delete_factor,
 )
 
-from inventory.selectors.factor import factor_list, factor_detail
+from inventory.selectors.factor import factor_list, factor_detail, valuation_stock
 
 
 class InputApi(views.APIView):
@@ -53,7 +53,7 @@ class InputApi(views.APIView):
                 {"detail": "Database Error - " + str(ex)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return Response(self.OutPutSerializer(query, context={"request": request}).data)
+        return Response(self.OutputSerializer(query, context={"request": request}).data)
 
 
 class OutputApi(views.APIView):
@@ -65,7 +65,7 @@ class OutputApi(views.APIView):
         class Meta:
             model = Factor
             fields = [
-                "factor_id",
+                "id",
                 "ware_id",
                 "quantity",
                 "total_cost",
@@ -90,7 +90,7 @@ class OutputApi(views.APIView):
                 {"detail": "Database Error - " + str(ex)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return Response(self.OutPutSerializer(query, context={"request": request}).data)
+        return Response(self.OutputSerializer(query, context={"request": request}).data)
 
 
 class FactorApi(views.APIView):
@@ -190,3 +190,28 @@ class FactorDetailApi(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(status=status.HTTP_200_OK)
+
+
+class ValuationApi(views.APIView):
+    class OutputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Factor
+            fields = ["ware", "quantity_in_stock", "total_inventory_value"]
+
+        quantity_in_stock = serializers.IntegerField()
+        total_inventory_value = serializers.DecimalField(
+            max_digits=10, decimal_places=2, required=False
+        )
+
+    @extend_schema(
+        responses=OutputSerializer,
+    )
+    def get(self, request, id: int):
+        try:
+            query = valuation_stock(id)
+        except Exception as ex:
+            return Response(
+                {"detail": "Filter Error - " + str(ex)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(query)
