@@ -27,7 +27,7 @@ class InputApi(views.APIView):
         class Meta:
             model = Factor
             fields = [
-                "factor_id",
+                "id",
                 "ware_id",
                 "quantity",
                 "purchase_price",
@@ -53,7 +53,10 @@ class InputApi(views.APIView):
                 {"detail": "Database Error - " + str(ex)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return Response(self.OutputSerializer(query, context={"request": request}).data)
+        return Response(
+            self.OutputSerializer(query, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class OutputApi(views.APIView):
@@ -90,7 +93,10 @@ class OutputApi(views.APIView):
                 {"detail": "Database Error - " + str(ex)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return Response(self.OutputSerializer(query, context={"request": request}).data)
+        return Response(
+            self.OutputSerializer(query, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class FactorApi(views.APIView):
