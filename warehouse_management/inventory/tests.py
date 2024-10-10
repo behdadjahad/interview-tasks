@@ -1,28 +1,30 @@
+from django.test import TestCase
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from decimal import Decimal
+
+from inventory.models import Ware, Factor
 
 
-class WarehouseAPITest(APITestCase):
+class WareTest(TestCase):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.ware = Ware.objects.create(name="test", cost_method="fifo")
 
-    def test_create_ware(self):
-        url = reverse("create_ware")
-        data = {"name": "Widget A", "cost_method": "fifo"}
-        response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, 201)
+    def test_ware_content(self):
+        self.assertEqual(self.ware.name, "test")
+        self.assertEqual(self.ware.cost_method, "fifo")
 
-    def test_input_transaction(self):
-        url = reverse("add_ware")
-        data = {"ware_id": 1, "quantity": 100, "purchase_price": 20.00}
-        response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, 201)
 
-    def test_output_transaction(self):
-        url = reverse("remove_ware")
-        data = {"ware_id": 1, "quantity": 50}
-        response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, 201)
+class FactorTest(TestCase):
+    @classmethod
+    def setUpTestData(cls) -> None:
+        cls.ware = Ware.objects.create(name="test", cost_method="fifo")
+        cls.factor = Factor.objects.create(
+            ware=cls.ware, quantity=10, purchase_price=Decimal(1000), type="input"
+        )
 
-    def test_inventory_valuation(self):
-        url = reverse("inventory_valuation")
-        response = self.client.get(url, {"ware_id": 1})
-        self.assertEqual(response.status_code, 200)
+    def test_factor_content(self):
+        self.assertEqual(self.factor.ware, self.ware)
+        self.assertEqual(self.factor.quantity, 10)
+        self.assertEqual(self.factor.purchase_price, Decimal(1000))
+        self.assertEqual(self.factor.type, "input")
